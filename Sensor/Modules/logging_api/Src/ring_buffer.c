@@ -137,7 +137,7 @@ int ringbuf_get(struct ring_buffer *r, uint8_t *out_data, size_t *size)
     return 0;
 }
 
-void ringbuf_clear(struct ringbuf *r)
+void ringbuf_clear(struct ring_buffer *r)
 {
     osMutexAcquire(*r->mutex, osWaitForever);
     r->head = r->buff;
