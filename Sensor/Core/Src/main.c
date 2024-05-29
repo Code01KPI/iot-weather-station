@@ -25,6 +25,7 @@
 #include "usart.h"
 #include "rtos_common.h"
 #include "logging_api.h"
+#include "sensors.h"
 
 /* USER CODE END Includes */
 
@@ -90,6 +91,7 @@ void StartDefaultTask(void *argument);
 static void run_tasks()
 {
   start_log_task();
+  start_sensors_task();
 }
 /* USER CODE END 0 */
 

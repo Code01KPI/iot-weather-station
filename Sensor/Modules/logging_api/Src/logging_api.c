@@ -12,7 +12,7 @@ static volatile uint32_t log_buffer_head = 0;
 static volatile uint32_t log_buffer_tail = 0;
 static volatile size_t log_buffer_size = 0;
 
-CONFIGURE_TASK(log, osPriorityNormal, 2048, log_task, NULL);
+CONFIGURE_TASK(log, osPriorityNormal, 2048 * 2, log_task, NULL);
 CONFIGURE_MUTEX(log_mutex);
 CONFIGURE_SEMAPHORE(log_txcplt_sem, 1);
 

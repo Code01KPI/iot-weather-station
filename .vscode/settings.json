@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "rtos_common.h": "c",
+        "sensors.h": "c"
+    }
+}
