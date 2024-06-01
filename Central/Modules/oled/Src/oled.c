@@ -1,10 +1,19 @@
 #include "oled.h"
 #include "main.h"
+#include <cmsis_os.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>  // For memcpy
 
 #if defined(SSD1306_USE_I2C)
+
+volatile uint8_t I2C_TransferComplete;
+
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    if (hi2c->Instance == SSD1306_I2C_PORT.Instance) {
+        ++I2C_TransferComplete;
+    }
+}
 
 void ssd1306_Reset(void) {
     /* for I2C - do nothing */
@@ -12,12 +21,28 @@ void ssd1306_Reset(void) {
 
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
+    I2C_TransferComplete = 0;
+    HAL_I2C_Mem_Write_IT(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x00, 1, &byte, 1);
+
+    uint32_t timeout = HAL_GetTick() + 100;
+    while (!I2C_TransferComplete) {
+        if (HAL_GetTick() > timeout) {
+            break;
+        }
+    }
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
-    HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
+    I2C_TransferComplete = 0;
+    HAL_I2C_Mem_Write_IT(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x40, 1, buffer, buff_size);
+    
+    uint32_t timeout = HAL_GetTick() + 100;
+    while (!I2C_TransferComplete) {
+        if (HAL_GetTick() > timeout) {
+            break;
+        }
+    }
 }
 
 #elif defined(SSD1306_USE_SPI)
@@ -76,7 +101,7 @@ void ssd1306_Init(void) {
     ssd1306_Reset();
 
     // Wait for the screen to boot
-    HAL_Delay(100);
+    osDelay(100);
 
     // Init OLED
     ssd1306_SetDisplayOn(0); //display off
